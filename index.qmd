@@ -85,5 +85,3 @@ dev.off()
 ```{r diplay}
 rainfall_plot
 ```
-
-
