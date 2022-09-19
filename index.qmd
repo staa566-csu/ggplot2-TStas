@@ -1,0 +1,82 @@
+---
+title: "STAA566_ggplot2_TStas"
+author: "Tiana Stastny"
+format: html
+editor: visual
+---
+
+## Load libraries
+
+```{r}
+library(tidyverse)
+library(ggthemes)
+library(viridis)
+```
+
+## Obtain and load data
+
+Data was downloaded from the AQUASTAT database. The National Rainfall Index (NRI) values were selected for the United States, along with several Southeast Asia countries, from approximately 1963 to 2019. Note that these values are in millimeters (mm). The plot below focuses on the values from 1970 to 1980.
+
+```{r}
+# Load national rainfall data from AQUASTAT - Global water resources and uses
+# https://tableau.apps.fao.org/views/ReviewDashboard-v1/country_dashboard?%3Aembed=y&%3AisGuestRedirectFromVizportal=y
+
+national_rainfall_data <- read.csv("C:/Users/tiana/OneDrive/Documents/CSU_STAA_566_Data_Viz/rainfall.csv", header=TRUE)
+
+# get into long format, put year as column variable
+rainfall <- national_rainfall_data %>%
+  pivot_longer(
+    cols = starts_with("X"),
+    names_to = "year",
+    names_prefix = "yr",
+    values_to = "amount",
+  )
+
+# There are two types of sources - imputed and external.  There are more values under "imputed", so we'll look at these.
+all <- rainfall %>% filter(Symbol == "I  ")
+
+# remove 'X' from year values
+all <- all %>%                              
+  mutate(year = substring(year, 2))
+
+# get subset of data from 1970 to 1980
+subset <- all %>% filter(year >= "1970", year < "1981")
+
+# convert the rainfall amount values to 'numeric' type
+subset$amount <- as.numeric(gsub(",", "", subset$amount))
+
+
+# build ggplot
+p_gm <- ggplot(data = subset,
+            mapping = aes(x = year,
+                          y = amount, 
+                          group = Country, 
+                          color = Country
+                          )
+            )
+rainfall_plot <- p_gm + 
+  geom_line(data=subset[!is.na(subset$amount),]) + 
+  geom_point(data=subset[!is.na(subset$amount),]) + 
+  theme_classic() + 
+  theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+  scale_color_viridis(discrete = TRUE) + 
+  xlab("Year") + 
+  ylab("Amount of rain (mm)") + 
+  ggtitle("Amount of rain per year in Southeast Asia vs United States")
+```
+
+## Save Figure as pdf
+
+```{r save as pdf}
+pdf("rainfall.pdf", heigh=6, width=8)
+print(rainfall_plot)
+dev.off()
+```
+
+## Display Figure in HTML
+
+```{r diplay}
+rainfall_plot
+```
+
+\`\`\`
