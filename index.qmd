@@ -31,7 +31,11 @@ rainfall <- national_rainfall_data %>%
     names_prefix = "yr",
     values_to = "amount",
   )
+```
 
+## Select subset of data to plot
+
+```{r}
 # There are two types of sources - imputed and external.  There are more values under "imputed", so we'll look at these.
 all <- rainfall %>% filter(Symbol == "I  ")
 
@@ -44,8 +48,11 @@ subset <- all %>% filter(year >= "1970", year < "1981")
 
 # convert the rainfall amount values to 'numeric' type
 subset$amount <- as.numeric(gsub(",", "", subset$amount))
+```
 
+## Build ggplot2 object
 
+```{r}
 # build ggplot
 p_gm <- ggplot(data = subset,
             mapping = aes(x = year,
@@ -55,8 +62,8 @@ p_gm <- ggplot(data = subset,
                           )
             )
 rainfall_plot <- p_gm + 
-  geom_line(data=subset[!is.na(subset$amount),]) + 
-  geom_point(data=subset[!is.na(subset$amount),]) + 
+  geom_line(data=subset[!is.na(subset$amount),]) +  # connect lines over NAs
+  geom_point(data=subset[!is.na(subset$amount),]) + # points if not NA
   theme_classic() + 
   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
   scale_color_viridis(discrete = TRUE) + 
@@ -73,10 +80,10 @@ print(rainfall_plot)
 dev.off()
 ```
 
-## Display Figure in HTML
+## Display plot
 
 ```{r diplay}
 rainfall_plot
 ```
 
-\`\`\`
+
